@@ -11,10 +11,12 @@ import android.widget.Toast;
 
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
 
 public class MainActivity extends AppCompatActivity implements PlacesAutoCompleteAdapter.ClickListener {
 
     private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
+    private PlacesClient placesClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,12 +24,13 @@ public class MainActivity extends AppCompatActivity implements PlacesAutoComplet
         setContentView(R.layout.activity_main);
 
         Places.initialize(getApplicationContext(), getString(R.string.google_map_key));
+        placesClient = Places.createClient(this);
 
         EditText searchEdit = findViewById(R.id.searchEdit);
         RecyclerView placesRv = findViewById(R.id.placesRv);
 
         searchEdit.addTextChangedListener(filterTextWatcher);
-        mAutoCompleteAdapter = new PlacesAutoCompleteAdapter(this);
+        mAutoCompleteAdapter = new PlacesAutoCompleteAdapter(this, placesClient);
         placesRv.setLayoutManager(new LinearLayoutManager(this));
         mAutoCompleteAdapter.setClickListener(this);
         placesRv.setAdapter(mAutoCompleteAdapter);

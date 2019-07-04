@@ -50,12 +50,14 @@ public class PlacesAutoCompleteAdapter extends RecyclerView.Adapter<PlacesAutoCo
     private CharacterStyle STYLE_NORMAL;
     private final PlacesClient placesClient;
     private ClickListener clickListener;
+    private AutocompleteSessionToken token;
 
-    public PlacesAutoCompleteAdapter(Context context) {
+    public PlacesAutoCompleteAdapter(Context context, PlacesClient placesClient) {
         mContext = context;
         STYLE_BOLD = new StyleSpan(Typeface.BOLD);
         STYLE_NORMAL = new StyleSpan(Typeface.NORMAL);
-        placesClient = com.google.android.libraries.places.api.Places.createClient(context);
+        token = AutocompleteSessionToken.newInstance();
+        this.placesClient = placesClient;
     }
 
     public void setClickListener(ClickListener clickListener) {
@@ -105,11 +107,6 @@ public class PlacesAutoCompleteAdapter extends RecyclerView.Adapter<PlacesAutoCo
     private ArrayList<PlaceAutocomplete> getPredictions(CharSequence constraint) {
 
         final ArrayList<PlaceAutocomplete> resultList = new ArrayList<>();
-
-        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
-        // and once again when the user makes a selection (for example when calling fetchPlace()).
-        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
-
 
         // Use the builder to create a FindAutocompletePredictionsRequest.
         FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
@@ -190,7 +187,7 @@ public class PlacesAutoCompleteAdapter extends RecyclerView.Adapter<PlacesAutoCo
                 String placeId = String.valueOf(item.placeId);
 
                 List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
-                FetchPlaceRequest request = FetchPlaceRequest.builder(placeId, placeFields).build();
+                FetchPlaceRequest request = FetchPlaceRequest.builder(placeId, placeFields).setSessionToken(token).build();
                 placesClient.fetchPlace(request).addOnSuccessListener(new OnSuccessListener<FetchPlaceResponse>() {
                     @Override
                     public void onSuccess(FetchPlaceResponse response) {
